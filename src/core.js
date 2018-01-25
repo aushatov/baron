@@ -656,7 +656,6 @@
                     var prevScrollPos = this._prevScrollPos || 0;
                     if (Math.abs(prevScrollPos - scrollPos) >= scrollStep) {
                         scrollPos = Math.round(scrollPos/scrollStep)*scrollStep;
-                        console.log(prevScrollPos, scrollPos);
                         this._prevScrollPos = scrollPos;
                         this.scroller[this.origin.scroll] = scrollPos;
                     }
