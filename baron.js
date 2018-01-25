@@ -36,6 +36,11 @@
     var macosxffRe = /[\s\S]*Macintosh[\s\S]*\) Gecko[\s\S]*/;
     var isMacFF = macosxffRe.test(window.navigator.userAgent);
 
+    // Extra param names list
+    var extraParamNamesList = [
+        'scrollStep'
+    ];
+
     // removeIf(production)
     var log = function() {
         baron.fn.log.apply(this, arguments);
@@ -181,6 +186,15 @@
 
                     perInstanceParams.root = root;
                     this[i] = init(perInstanceParams);
+
+                    // add extra params
+                    var extraParams = {};
+                    extraParamNamesList.forEach(function (paramName) {
+                        if (params.hasOwnProperty(paramName)) {
+                            extraParams[paramName] = params[paramName];
+                        }
+                    });
+                    this[i].extraParams = extraParams;
                 }
 
                 this.length = i + 1;
@@ -636,7 +650,19 @@
             this.drag = function(e) {
                 var rel = posToRel.call(this, this.cursor(e) - scrollerPos0);
                 var k = (this.scroller[this.origin.scrollSize] - this.scroller[this.origin.client]);
-                this.scroller[this.origin.scroll] = rel * k;
+                var scrollPos = rel * k;
+                var scrollStep = this.extraParams.scrollStep;
+                if (scrollStep) {
+                    var prevScrollPos = this._prevScrollPos || 0;
+                    if (Math.abs(prevScrollPos - scrollPos) >= scrollStep) {
+                        scrollPos = Math.round(scrollPos/scrollStep)*scrollStep;
+                        console.log(prevScrollPos, scrollPos);
+                        this._prevScrollPos = scrollPos;
+                        this.scroller[this.origin.scroll] = scrollPos;
+                    }
+                } else {
+                    this.scroller[this.origin.scroll] = scrollPos;
+                }
             };
 
             // Text selection preventing on drag
